@@ -12,7 +12,7 @@ Expand **Review trade** on a closed cycle to record setup type, entry trigger, e
 
 ## Holiday calendar
 
-The dashboard loads NSE India's official live cash-market holiday calendar from `https://www.nseindia.com/api/holiday-master?type=trading`. It uses the returned NSE dates to skip holiday refreshes and lists upcoming sessions and holidays, with the source and update status visible in the P&L tab. The calendar is NSE's; BSE SENSEX closure dates can differ, so confirm BSE notices separately before trading SENSEX. If the official feed is unavailable, the dashboard warns and falls back to a weekday-only refresh schedule rather than pretending the holiday list is current.
+The dashboard loads NSE India's official live cash-market holiday calendar from `https://www.nseindia.com/api/holiday-master?type=trading`. It lists upcoming sessions and holidays for planning, with the source and update status visible in the P&L tab. The calendar is NSE's; BSE SENSEX closure dates can differ, so confirm BSE notices separately before trading SENSEX. If the official feed is unavailable, the dashboard warns rather than pretending the holiday list is current.
 
 The Market & OI view uses one combined card per index so the expiry/spot, option positioning, and CE/PE strike setups are visible together instead of repeating the same index in separate cards. Each side shows the full-chain highest-OI strike and OI, the largest strike-level 15-minute OI build, and net chain OI change alongside its candidate. Highest OI and 15-minute OI build are context only; they are not the candidate recommendation.
 
@@ -36,27 +36,29 @@ The app fails closed to **WAIT / NO TRADE** because Groww option-premium histori
 
 ### Quick start
 
-After the prerequisites are ready, clone the repository and start the app.
+After the prerequisites are ready, clone the repository and start it directly with Python.
 
-```sh
+```console
 git clone https://github.com/samvj1994/OptionsTrading.git
 cd OptionsTrading
-sh start.sh
+python3 run_dashboard.py
 ```
 
-On Windows Command Prompt, run `start.cmd`. In PowerShell, run `.\start.cmd` instead of `sh start.sh`.
+On Windows, run `py -3 run_dashboard.py`.
 
-Open <http://127.0.0.1:8000>. Keep the terminal window open while using the dashboard; press **Ctrl+C** to stop it. If port 8000 is already in use, set `PORT` to another port before starting (for example, `PORT=8001 sh start.sh` on macOS/Linux).
+Open <http://127.0.0.1:8000>. To stop it manually, run `python3 run_dashboard.py --stop` (Windows: `py -3 run_dashboard.py --stop`). If port 8000 is already in use, set `PORT` to another port before starting (for example, `PORT=8001 python3 run_dashboard.py` on macOS/Linux).
+
+For your 9 AM to 4 PM schedule, set the scheduled start action to `python3 /path/to/OptionsTrading/run_dashboard.py` and the scheduled stop action to `python3 /path/to/OptionsTrading/run_dashboard.py --stop`. Replace the path with the folder where you cloned the repo. On Windows, use `py -3 C:\\path\\to\\OptionsTrading\\run_dashboard.py` and append `--stop` to the 4 PM action.
 
 The local dashboard starts without Groww credentials, but live market and account data require Groww API credentials. Follow [Connect Groww](#connect-groww) to configure them. The dashboard stays available outside market hours and refreshes its market view every five minutes while open.
 
 To see the interface without credentials or outside market hours, start the clearly labeled synthetic preview (not market data or trading signals):
 
 ```sh
-sh start.sh --preview
+python3 run_dashboard.py --preview
 ```
 
-On Windows Command Prompt, run `start.cmd --preview`. In PowerShell, run `.\start.cmd --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
+On Windows, run `py -3 run_dashboard.py --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
 
 The dashboard interface, market-data processing, and local journal are written in Python. Streamlit is the only application dependency; its renderer displays the Python interface in your browser.
 
@@ -68,7 +70,7 @@ Groww requires an active Trading API subscription for API access. Confirm eligib
 2. In `.env`, fill in `GROWW_API_KEY` and **one** of the following:
    - `GROWW_API_SECRET` for the API key/secret approval flow. Groww requires daily approval for this method.
    - `GROWW_TOTP_SECRET` for the TOTP flow. Use the TOTP token as `GROWW_API_KEY`.
-3. Save `.env`, stop the server with **Ctrl+C**, and start it again with `sh start.sh` (or `start.cmd` on Windows).
+3. Save `.env`, stop the server with `python3 run_dashboard.py --stop` (or `py -3 run_dashboard.py --stop` on Windows), then start it again with `python3 run_dashboard.py` (or `py -3 run_dashboard.py` on Windows).
 
 The server obtains and keeps the access token locally, then reads Groww's expiry list and option chain for each index. The dashboard reports the highest-OI strike separately from the multi-factor strike rankings. If Groww credentials are absent or Groww rejects a request, the dashboard reports an error instead of using another provider. The dashboard also reads account trade data for the P&L tab; it never places, modifies, or cancels orders.
 
