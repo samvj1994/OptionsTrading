@@ -1843,27 +1843,7 @@ def json_response(response, status, payload)
   response.body = body
 end
 
-def dashboard_operating_window?(time)
-  india_time = time.getlocal('+05:30')
-  india_time.wday.between?(1, 5) &&
-    india_time.hour >= 9 && india_time.hour < 16
-end
-
-def seconds_until_dashboard_close(time)
-  india_time = time.getlocal('+05:30')
-  closing_time = Time.new(
-    india_time.year, india_time.month, india_time.day, 16, 0, 0, '+05:30'
-  )
-  [closing_time - india_time, 0].max
-end
-
 if $PROGRAM_NAME == __FILE__
-  allow_outside_hours = ENV['DASHBOARD_ALLOW_OUTSIDE_HOURS'] == '1'
-  unless allow_outside_hours || dashboard_operating_window?(Time.now)
-    warn 'Dashboard starts only on weekdays from 09:00 to 16:00 IST.'
-    exit 0
-  end
-
   server = WEBrick::HTTPServer.new(
     Port: PORT,
     BindAddress: '127.0.0.1',
@@ -1924,11 +1904,5 @@ if $PROGRAM_NAME == __FILE__
   trap('INT') { server.shutdown }
   trap('TERM') { server.shutdown }
   puts "Open-interest dashboard running at http://127.0.0.1:#{PORT}"
-  unless allow_outside_hours
-    Thread.new do
-      sleep seconds_until_dashboard_close(Time.now)
-      server.shutdown
-    end
-  end
   server.start
 end

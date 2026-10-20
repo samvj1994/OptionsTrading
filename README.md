@@ -26,28 +26,34 @@ The app fails closed to **WAIT / NO TRADE** because Groww option-premium histori
 
 ## Run
 
-The dashboard is configured to run only Monday through Friday, 09:00–16:00 India time. A macOS LaunchAgent starts it at 09:00; the server shuts itself down at 16:00, and direct starts outside that window exit immediately. If the Mac is asleep at 09:00, macOS starts the missed job when it wakes. The LaunchAgent runs only while your macOS user is logged in.
+### Quick start
 
-Requires the Ruby and WEBrick already included with this macOS setup. No extra tools or packages need to be installed. To start it manually during its operating window:
-
-```sh
-ruby server.rb
-```
-
-Open <http://127.0.0.1:8000>.
-
-For a clearly labeled, synthetic UI-only preview (not market data or trading signals), run:
+Install Ruby 2.6 or newer and Bundler, then clone this repository. The launch scripts install the required WEBrick gem the first time you start the app.
 
 ```sh
-DASHBOARD_ALLOW_OUTSIDE_HOURS=1 DASHBOARD_TEST_PREVIEW=1 ruby server.rb
+git clone https://github.com/samvj1994/OptionsTrading.git
+cd OptionsTrading
+sh start.sh
 ```
 
-This mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start `ruby server.rb` normally to return to the real Groww feed.
+On Windows Command Prompt or PowerShell, run `start.cmd` instead of `sh start.sh`.
+
+Open <http://127.0.0.1:8000>. Keep the terminal window open while using the dashboard; press **Ctrl+C** to stop it. If port 8000 is already in use, set `PORT` to another port before starting (for example, `PORT=8001 sh start.sh` on macOS/Linux).
+
+The local dashboard starts without Groww credentials, but live market and account data require Groww API credentials. Follow [Connect Groww](#connect-groww) to configure them. The local web server remains available outside market hours; live-data refreshes still follow the market schedule.
+
+To see the interface without credentials or outside market hours, start the clearly labeled synthetic preview (not market data or trading signals):
+
+```sh
+sh start.sh --preview
+```
+
+On Windows, run `start.cmd --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
 
 Run the local strategy unit tests with:
 
 ```sh
-ruby test/strategy_test.rb
+bundle exec ruby test/strategy_test.rb
 ```
 
 ## Connect Groww
@@ -58,7 +64,7 @@ Groww requires an active Trading API subscription for API access. Confirm eligib
 2. In `.env`, fill in `GROWW_API_KEY` and **one** of the following:
    - `GROWW_API_SECRET` for the API key/secret approval flow. Groww requires daily approval for this method.
    - `GROWW_TOTP_SECRET` for the TOTP flow. Use the TOTP token as `GROWW_API_KEY`.
-3. Save `.env` and restart the server with `ruby server.rb`.
+3. Save `.env`, stop the server with **Ctrl+C**, and start it again with `sh start.sh` (or `start.cmd` on Windows).
 
 The server obtains and keeps the access token locally, then reads Groww's expiry list and option chain for each index. The dashboard reports the highest-OI strike separately from the multi-factor strike rankings. If Groww credentials are absent or Groww rejects a request, the dashboard reports an error instead of using another provider. The dashboard also reads account trade data for the P&L tab; it never places, modifies, or cancels orders.
 
