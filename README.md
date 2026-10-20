@@ -26,9 +26,17 @@ The app fails closed to **WAIT / NO TRADE** because Groww option-premium histori
 
 ## Run
 
+### Before you start
+
+- Install Git if you plan to clone the repository; downloading the ZIP works too.
+- Install Ruby 2.6 or newer and Bundler. Check with `ruby --version` and `bundle --version`. If Bundler is missing, install it with `gem install bundler`.
+- Have an internet connection for the first launch so Bundler can install WEBrick. Live market data also needs internet access to Groww and NSE.
+- Use a modern web browser. The dashboard is served only on your computer at `http://127.0.0.1:8000`; choose another free port with `PORT` if 8000 is already in use.
+- Groww API access is optional for opening the dashboard, but required for live market and account data. Set up an eligible Groww Trading API subscription and credentials first; the [Connect Groww](#connect-groww) section explains the local `.env` setup. Without credentials, run the synthetic preview to explore the interface.
+
 ### Quick start
 
-Install Ruby 2.6 or newer and Bundler, then clone this repository. The launch scripts install the required WEBrick gem the first time you start the app.
+After the prerequisites are ready, clone the repository and start the app. The launch scripts install the required WEBrick gem the first time you start it.
 
 ```sh
 git clone https://github.com/samvj1994/OptionsTrading.git
