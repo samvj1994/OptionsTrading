@@ -2,24 +2,23 @@
 setlocal
 cd /d "%~dp0"
 
-where ruby >nul 2>nul
+where py >nul 2>nul
 if errorlevel 1 (
-  echo Ruby is required. Install Ruby 2.6 or newer, then run this command again.
+  where python >nul 2>nul
+  if errorlevel 1 (
+    echo Python 3.10 or newer is required. Install Python, then run this command again.
+    exit /b 1
+  )
+  set "PYTHON=python"
+) else (
+  set "PYTHON=py -3"
+)
+
+%PYTHON% -c "import sys; raise SystemExit(sys.version_info < (3,10))"
+if errorlevel 1 (
+  echo Python 3.10 or newer is required. Upgrade Python, then run this command again.
   exit /b 1
 )
 
-where bundle >nul 2>nul
-if errorlevel 1 (
-  echo Bundler is required. Install it with: gem install bundler
-  exit /b 1
-)
-
-bundle check >nul 2>nul
-if errorlevel 1 (
-  echo Installing dashboard dependencies...
-  bundle install
-  if errorlevel 1 exit /b 1
-)
-
-if /I "%~1"=="--preview" set DASHBOARD_TEST_PREVIEW=1
-bundle exec ruby server.rb
+if /I "%~1"=="--preview" set "DASHBOARD_TEST_PREVIEW=1"
+%PYTHON% server.py

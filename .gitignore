@@ -3,5 +3,5 @@
 !.env.example
 .DS_Store
 *.log
-.bundle/
-vendor/bundle/
+__pycache__/
+*.py[cod]

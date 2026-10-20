@@ -29,14 +29,14 @@ The app fails closed to **WAIT / NO TRADE** because Groww option-premium histori
 ### Before you start
 
 - Install Git if you plan to clone the repository; downloading the ZIP works too.
-- Install Ruby 2.6 or newer and Bundler. Check with `ruby --version` and `bundle --version`. If Bundler is missing, install it with `gem install bundler`.
-- Have an internet connection for the first launch so Bundler can install WEBrick. Live market data also needs internet access to Groww and NSE.
+- Install Python 3.10 or newer. Check with `python3 --version` (Windows: `py --version`). The server uses only Python's standard library, so there are no packages to install.
+- Have an internet connection for live market data from Groww and the NSE holiday calendar. Synthetic preview mode works without API credentials.
 - Use a modern web browser. The dashboard is served only on your computer at `http://127.0.0.1:8000`; choose another free port with `PORT` if 8000 is already in use.
 - Groww API access is optional for opening the dashboard, but required for live market and account data. Set up an eligible Groww Trading API subscription and credentials first; the [Connect Groww](#connect-groww) section explains the local `.env` setup. Without credentials, run the synthetic preview to explore the interface.
 
 ### Quick start
 
-After the prerequisites are ready, clone the repository and start the app. The launch scripts install the required WEBrick gem the first time you start it.
+After the prerequisites are ready, clone the repository and start the app.
 
 ```sh
 git clone https://github.com/samvj1994/OptionsTrading.git
@@ -58,11 +58,7 @@ sh start.sh --preview
 
 On Windows Command Prompt, run `start.cmd --preview`. In PowerShell, run `.\start.cmd --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
 
-Run the local strategy unit tests with:
-
-```sh
-bundle exec ruby test/strategy_test.rb
-```
+The dashboard server and market-data processing are written in Python. The browser interface uses HTML, CSS, and JavaScript because browsers use those languages to render interactive pages.
 
 ## Connect Groww
 
