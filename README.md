@@ -1,14 +1,14 @@
 # Option Trade Analyzer
 
-A local dashboard for NIFTY and SENSEX. All market data shown—underlying price, expiry, option-chain OI, and the rolling 15-minute OI comparison—comes from Groww only. During weekdays the dashboard refreshes every five minutes from 09:15 through 15:30 India time, excluding dates loaded from NSE India's official holiday calendar when available.
+A local dashboard for NIFTY and SENSEX. All market data shown—underlying price, expiry, option-chain OI, and the rolling 15-minute OI comparison—comes from Groww only. While the dashboard is open, its market view refreshes every five minutes. The NSE holiday calendar is shown for session planning; verify BSE notices separately for SENSEX.
 
 ## P&L and trade journal
 
 The **P&L & Journal** tab reads Groww's documented F&O day-order list, per-order trade fills, and F&O positions endpoints. It displays Groww's reported realized P&L, completed same-session fill cycles, wins/losses, win rate, profit factor, average win/loss, expectancy, drawdown, fills, and open-position count. Only closed same-session fill cycles are used for win/loss statistics; this cycle estimate can be incomplete for contracts carried into the session. Future sessions are listed for planning, but future trades and P&L are not fabricated.
 
-Groww's order, trade, and positions APIs do not return transaction-charge totals or unrealized mark-to-market P&L. Enter the actual total transaction charges from the next-day contract note in the **P&L & Journal** tab; net P&L is calculated from Groww-reported realized P&L less the entered charges. The charge total is saved in this browser's local storage for the selected session date and is not uploaded. Orders, trade fills, positions, realized P&L, cycle statistics, and open-position count continue to come from Groww. Unrealized MTM and contract-note charges are not available through the documented Groww Trading API.
+Groww's order, trade, and positions APIs do not return transaction-charge totals or unrealized mark-to-market P&L. Enter the actual total transaction charges from the next-day contract note in the **P&L & Journal** tab; net P&L is calculated from Groww-reported realized P&L less the entered charges. Charges and trade review notes are saved in a local SQLite file under `.dashboard_data/` and are not uploaded. Orders, trade fills, positions, realized P&L, cycle statistics, and open-position count continue to come from Groww. Unrealized MTM and contract-note charges are not available through the documented Groww Trading API.
 
-Expand **Review trade** on a closed cycle to record setup type, entry trigger, entry/exit emotions, exit reason, execution/mistake tag, written-plan adherence, planned stop/target/max loss, and a lesson or next-session action. The summary tracks review completion, plan adherence, the most-tagged mistake and its associated closed-cycle P&L, and common entry emotion across journaled cycles. These notes and insights are stored only in this browser's local storage, not sent to the server. Older journal fields are retained when you add new review details. Clear the browser's site data to remove journal notes and saved charge entries. Closed cycles are same-session estimates; carried positions may not be represented accurately, and the review summary is only as complete as the trades you record.
+Expand **Review trade** on a closed cycle to record setup type, entry trigger, entry/exit emotions, exit reason, execution/mistake tag, written-plan adherence, planned stop/target/max loss, and a lesson or next-session action. The summary shows review completion and plan adherence. Notes and charge entries stay on this computer in `.dashboard_data/journal.sqlite3`. Delete that local data folder to remove them. Closed cycles are same-session estimates; carried positions may not be represented accurately, and the review summary is only as complete as the trades you record.
 
 ## Holiday calendar
 
@@ -29,8 +29,8 @@ The app fails closed to **WAIT / NO TRADE** because Groww option-premium histori
 ### Before you start
 
 - Install Git if you plan to clone the repository; downloading the ZIP works too.
-- Install Python 3.10 or newer. Check with `python3 --version` (Windows: `py --version`). The server uses only Python's standard library, so there are no packages to install.
-- Have an internet connection for live market data from Groww and the NSE holiday calendar. Synthetic preview mode works without API credentials.
+- Install Python 3.11 or newer. Check with `python3 --version` (Windows: `py --version`). On first start, the Python launcher creates a private `.venv` environment and installs Streamlit, the Python interface framework. You do not need to install it by hand.
+- Have an internet connection on first start to install Streamlit, and for live market data from Groww and the NSE holiday calendar. Synthetic preview mode works without API credentials after setup.
 - Use a modern web browser. The dashboard is served only on your computer at `http://127.0.0.1:8000`; choose another free port with `PORT` if 8000 is already in use.
 - Groww API access is optional for opening the dashboard, but required for live market and account data. Set up an eligible Groww Trading API subscription and credentials first; the [Connect Groww](#connect-groww) section explains the local `.env` setup. Without credentials, run the synthetic preview to explore the interface.
 
@@ -48,7 +48,7 @@ On Windows Command Prompt, run `start.cmd`. In PowerShell, run `.\start.cmd` ins
 
 Open <http://127.0.0.1:8000>. Keep the terminal window open while using the dashboard; press **Ctrl+C** to stop it. If port 8000 is already in use, set `PORT` to another port before starting (for example, `PORT=8001 sh start.sh` on macOS/Linux).
 
-The local dashboard starts without Groww credentials, but live market and account data require Groww API credentials. Follow [Connect Groww](#connect-groww) to configure them. The local web server remains available outside market hours; live-data refreshes still follow the market schedule.
+The local dashboard starts without Groww credentials, but live market and account data require Groww API credentials. Follow [Connect Groww](#connect-groww) to configure them. The dashboard stays available outside market hours and refreshes its market view every five minutes while open.
 
 To see the interface without credentials or outside market hours, start the clearly labeled synthetic preview (not market data or trading signals):
 
@@ -58,7 +58,7 @@ sh start.sh --preview
 
 On Windows Command Prompt, run `start.cmd --preview`. In PowerShell, run `.\start.cmd --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
 
-The dashboard server and market-data processing are written in Python. The browser interface uses HTML, CSS, and JavaScript because browsers use those languages to render interactive pages.
+The dashboard interface, market-data processing, and local journal are written in Python. Streamlit is the only application dependency; its renderer displays the Python interface in your browser.
 
 ## Connect Groww
 

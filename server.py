@@ -1,8 +1,7 @@
 """Local Python server for the Option Trade Analyzer dashboard.
 
-The browser still uses HTML, CSS, and JavaScript for its display. All server,
-Groww API, preview, and data-processing code lives here in Python's standard
-library so there are no Python packages to install.
+The Streamlit interface and this read-only local data service are both Python.
+Groww API, preview, and market-data processing live in this file.
 """
 
 from __future__ import annotations
@@ -898,11 +897,8 @@ def trading_summary():
     return result
 
 
-MIME_TYPES = {".html":"text/html; charset=utf-8", ".css":"text/css; charset=utf-8", ".js":"text/javascript; charset=utf-8"}
-
-
 class DashboardHandler(BaseHTTPRequestHandler):
-    """Serve the static dashboard and its three read-only API routes."""
+    """Serve the local dashboard's read-only Python data API."""
     server_version = "OptionTradeAnalyzerPython/1.0"
 
     def log_message(self, fmt, *args):
@@ -935,17 +931,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if parsed.path == "/api/holidays":
             self.send_json(200, holidays())
             return
-        name = "index.html" if parsed.path in ("/", "/index.html") else parsed.path.lstrip("/")
-        if name not in ("index.html", "style.css", "app.js"):
-            self.send_error(404)
-            return
-        data = (ROOT / name).read_bytes()
-        self.send_response(200)
-        self.send_header("Content-Type", MIME_TYPES[Path(name).suffix])
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
+        self.send_json(404, {"error": "Unknown API route."})
 
     def do_POST(self):
         self.send_response(405)
@@ -954,10 +940,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    port = int(os.getenv("PORT", "8000"))
+    port = int(os.getenv("API_PORT", "8765"))
     server = ThreadingHTTPServer(("127.0.0.1", port), DashboardHandler)
     server.daemon_threads = True
-    print(f"Option Trade Analyzer Python server running at http://127.0.0.1:{port}", flush=True)
+    print(f"Option Trade Analyzer Python data service running on 127.0.0.1:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
