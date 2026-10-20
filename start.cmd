@@ -1,4 +1,5 @@
 @echo off
+setlocal
 cd /d "%~dp0"
 
 where ruby >nul 2>nul

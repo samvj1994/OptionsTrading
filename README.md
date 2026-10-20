@@ -36,7 +36,7 @@ cd OptionsTrading
 sh start.sh
 ```
 
-On Windows Command Prompt or PowerShell, run `start.cmd` instead of `sh start.sh`.
+On Windows Command Prompt, run `start.cmd`. In PowerShell, run `.\start.cmd` instead of `sh start.sh`.
 
 Open <http://127.0.0.1:8000>. Keep the terminal window open while using the dashboard; press **Ctrl+C** to stop it. If port 8000 is already in use, set `PORT` to another port before starting (for example, `PORT=8001 sh start.sh` on macOS/Linux).
 
@@ -48,7 +48,7 @@ To see the interface without credentials or outside market hours, start the clea
 sh start.sh --preview
 ```
 
-On Windows, run `start.cmd --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
+On Windows Command Prompt, run `start.cmd --preview`. In PowerShell, run `.\start.cmd --preview`. Preview mode affects only `/api/oi`; it does not contact Groww for option data. The banner labels all example values as synthetic and disables Groww contract links. Stop the preview server and start normally to return to the real Groww feed.
 
 Run the local strategy unit tests with:
 
