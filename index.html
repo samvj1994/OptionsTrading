@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07131f" />
+    <title>Option Trade Analyzer</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">INDIA DERIVATIVES · OPTION CHAIN</p>
+          <h1>Option Trade Analyzer</h1>
+          <p class="subtitle">NIFTY 50 · SENSEX <span class="subtitle-divider">/</span> <span id="market-data-source">Groww live market data</span></p>
+        </div>
+        <div class="header-actions">
+          <div class="refresh-pill" id="feed-status" role="status" aria-live="polite">
+            <span class="dot"></span>
+            <span id="last-updated">Connecting…</span>
+          </div>
+          <button class="refresh-button" id="refresh-button" type="button" aria-label="Refresh data now">
+            Refresh
+          </button>
+        </div>
+      </header>
+
+      <section class="notice" id="feed-notice" hidden role="status"></section>
+      <nav class="view-tabs" aria-label="Dashboard views">
+        <button class="view-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="market-panel" id="market-tab">Market &amp; OI</button>
+        <button class="view-tab" type="button" role="tab" aria-selected="false" aria-controls="trading-panel" id="trading-tab">P&amp;L &amp; Journal</button>
+      </nav>
+      <section id="market-panel" class="view-panel" role="tabpanel" aria-labelledby="market-tab">
+        <section class="change-section" aria-labelledby="oi-change-heading">
+          <div class="section-heading">
+            <h2 id="oi-change-heading">Index strike setups</h2>
+            <p>One view per index: compare the top CE/PE setup with OI context. Candidate strikes stay within NIFTY ±500 or SENSEX ±1,000 points from spot.</p>
+          </div>
+          <p class="change-status" id="oi-change-status" role="status">
+            Groww OI snapshots are held in memory only.
+          </p>
+          <div class="change-grid" id="oi-change-cards"></div>
+        </section>
+      </section>
+
+      <section id="trading-panel" class="view-panel trading-panel" role="tabpanel" aria-labelledby="trading-tab" hidden>
+        <div class="trading-heading">
+          <div>
+            <p class="eyebrow">EXECUTION REVIEW</p>
+            <h2>Session P&amp;L &amp; trade journal</h2>
+            <p class="subtitle">Groww executions · review your setup, risk, execution and lesson after every closed trade</p>
+          </div>
+          <div class="trading-controls">
+            <label class="session-select-label" for="session-date">Session
+              <select id="session-date" aria-label="Select a current or upcoming trading session">
+                <option value="">Loading sessions…</option>
+              </select>
+            </label>
+            <button class="refresh-button" id="trading-refresh-button" type="button">Refresh trades</button>
+          </div>
+        </div>
+        <p class="change-status" id="trading-status" role="status">Waiting for Groww trade data.</p>
+        <div class="metric-grid">
+          <article class="metric-card metric-primary"><span id="pnl-label">Realized P&amp;L</span><strong id="realized-pnl">—</strong><small>Groww F&amp;O positions · before charges</small></article>
+          <article class="metric-card"><span>Transaction charges</span><label class="charge-entry"><span class="sr-only">Actual transaction charges from Groww contract note, rupees</span>₹ <input id="charges-input" type="number" min="0" step="0.01" placeholder="Enter contract-note total" disabled></label><small id="charges-note">Enter the actual total from your contract note</small></article>
+          <article class="metric-card"><span id="net-pnl-label">Net P&amp;L after charges</span><strong id="net-pnl">—</strong><small>Groww realized P&amp;L less entered charges</small></article>
+          <article class="metric-card"><span>Completed trade cycles</span><strong id="cycle-count">—</strong><small id="win-loss-count">Wins — · Losses —</small></article>
+          <article class="metric-card"><span>Win rate</span><strong id="win-rate">—</strong><small>Closed same-session fill cycles</small></article>
+          <article class="metric-card"><span>Profit factor</span><strong id="profit-factor">—</strong><small>Gross wins ÷ gross losses</small></article>
+        </div>
+        <div class="metric-grid metric-grid-secondary">
+          <article class="metric-card"><span>Average win / loss</span><strong id="average-win-loss">—</strong><small>Per completed cycle</small></article>
+          <article class="metric-card"><span>Expectancy</span><strong id="expectancy">—</strong><small>Average realized cycle P&amp;L</small></article>
+          <article class="metric-card"><span>Session max drawdown</span><strong id="max-drawdown">—</strong><small>Peak-to-trough from closed cycles</small></article>
+          <article class="metric-card"><span>Plan adherence</span><strong id="plan-adherence">—</strong><small id="journal-review-count">Review completion —</small></article>
+          <article class="metric-card"><span>Executed fills</span><strong id="fill-count">—</strong><small>Groww completed F&amp;O trades</small></article>
+          <article class="metric-card"><span>Open positions</span><strong id="open-positions">—</strong><small>Net quantity from Groww</small></article>
+        </div>
+        <div class="journal-card">
+          <div class="journal-title">
+            <div><h3>Trade review &amp; learning log</h3><p>Expand Review after each closed cycle. Record the setup, trigger, planned risk, execution, emotion, mistake and lesson. Journal entries stay in this browser.</p></div>
+            <span id="journal-emotion-summary" class="journal-summary">No reviewed trades yet</span>
+          </div>
+          <div class="table-scroll">
+            <table class="trade-table">
+              <thead><tr><th>Time · entry/exit</th><th>Contract / side</th><th>Qty</th><th>Premium · entry/exit</th><th>Realized P&amp;L</th><th>Post-trade review</th></tr></thead>
+              <tbody id="trade-rows"><tr><td colspan="6" class="table-empty">Select today to load Groww fills.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="journal-card calendar-card">
+          <div class="journal-title">
+            <div><h3>Trading calendar</h3><p id="calendar-status">Fetching the official NSE holiday calendar…</p></div>
+            <a id="calendar-source" href="https://www.nseindia.com/resources/exchange-communication-holidays" target="_blank" rel="noreferrer">NSE official calendar ↗</a>
+          </div>
+          <div class="calendar-layout"><div><h4>Next trading sessions</h4><ul id="upcoming-sessions" class="calendar-list"></ul></div><div><h4>Upcoming NSE holidays</h4><ul id="upcoming-holidays" class="calendar-list"></ul></div></div>
+          <p class="calendar-footnote">The live source is NSE’s cash-market calendar. NIFTY follows NSE; BSE SENSEX closure dates may differ. Confirm BSE notices when trading SENSEX.</p>
+        </div>
+      </section>
+      <footer class="page-footer">
+        <span>Auto-refresh: weekdays, 09:15–15:30 IST, every 5 minutes, excluding loaded NSE holidays.</span>
+        <span id="footer-data-source">Groww data · For information only, not investment advice</span>
+      </footer>
+    </div>
+
+    <template id="oi-change-card-template">
+      <article class="card change-card">
+        <div class="card-header">
+          <div>
+            <p class="symbol-label">INDEX · LIVE SPOT</p>
+            <h2 class="symbol-name change-symbol"></h2>
+            <strong class="change-spot-price">—</strong>
+          </div>
+          <div class="change-card-controls">
+            <label class="expiry-select-label">
+              <span>Expiry</span>
+              <select class="expiry-select" aria-label="Choose option expiry"></select>
+            </label>
+            <span class="strike-range-label"></span>
+          </div>
+        </div>
+        <div class="market-context"></div>
+        <div class="side-grid change-side-grid">
+          <div class="side-panel call-side">
+            <div class="side-label-row">
+              <span class="side-badge">Call</span>
+              <span class="side-type">CALL · CE</span>
+            </div>
+            <div class="strike-row">
+              <span>Highest OI strike</span>
+              <strong class="call-highest-oi-strike">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>Open interest</span>
+              <strong class="call-highest-oi">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>15-min largest OI build</span>
+              <strong class="call-change-strike">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>Build size</span>
+              <strong class="call-change-increase">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>Net chain OI change</span>
+              <strong class="call-net-change">—</strong>
+            </div>
+            <div class="trade-candidate">
+              <div class="candidate-title">
+                <span>Top call setup</span>
+                <strong class="call-candidate-status candidate-status">WAIT</strong>
+              </div>
+              <div class="candidate-detail call-candidate-detail">—</div>
+              <div class="candidate-score-wrap">
+                <strong class="call-candidate-score">—</strong>
+                <span>/100 research score</span>
+                <div class="candidate-score-meter" role="progressbar" aria-label="Call research score" aria-valuemin="0" aria-valuemax="100">
+                  <span class="call-candidate-score-meter-fill"></span>
+                </div>
+              </div>
+              <a class="candidate-link call-candidate-link" target="_blank" rel="noopener noreferrer" hidden>Find contract on Groww ↗</a>
+              <div class="candidate-flow call-candidate-flow" aria-label="Contract data"></div>
+              <div class="candidate-score-breakdown call-candidate-score-breakdown" aria-label="Score factors"></div>
+              <details class="candidate-rejection-details call-candidate-rejection-details">
+                <summary class="call-candidate-rejection-summary"></summary>
+                <ul class="candidate-rejection-list call-candidate-rejection-list"></ul>
+              </details>
+              <details class="candidate-alternatives call-candidate-alternatives">
+                <summary>Other ranked strikes</summary>
+                <ol class="candidate-rankings call-candidate-rankings"></ol>
+              </details>
+            </div>
+          </div>
+          <div class="side-panel put-side">
+            <div class="side-label-row">
+              <span class="side-badge">Put</span>
+              <span class="side-type">PUT · PE</span>
+            </div>
+            <div class="strike-row">
+              <span>Highest OI strike</span>
+              <strong class="put-highest-oi-strike">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>Open interest</span>
+              <strong class="put-highest-oi">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>15-min largest OI build</span>
+              <strong class="put-change-strike">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>Build size</span>
+              <strong class="put-change-increase">—</strong>
+            </div>
+            <div class="oi-row">
+              <span>Net chain OI change</span>
+              <strong class="put-net-change">—</strong>
+            </div>
+            <div class="trade-candidate">
+              <div class="candidate-title">
+                <span>Top put setup</span>
+                <strong class="put-candidate-status candidate-status">WAIT</strong>
+              </div>
+              <div class="candidate-detail put-candidate-detail">—</div>
+              <div class="candidate-score-wrap">
+                <strong class="put-candidate-score">—</strong>
+                <span>/100 research score</span>
+                <div class="candidate-score-meter" role="progressbar" aria-label="Put research score" aria-valuemin="0" aria-valuemax="100">
+                  <span class="put-candidate-score-meter-fill"></span>
+                </div>
+              </div>
+              <a class="candidate-link put-candidate-link" target="_blank" rel="noopener noreferrer" hidden>Find contract on Groww ↗</a>
+              <div class="candidate-flow put-candidate-flow" aria-label="Contract data"></div>
+              <div class="candidate-score-breakdown put-candidate-score-breakdown" aria-label="Score factors"></div>
+              <details class="candidate-rejection-details put-candidate-rejection-details">
+                <summary class="put-candidate-rejection-summary"></summary>
+                <ul class="candidate-rejection-list put-candidate-rejection-list"></ul>
+              </details>
+              <details class="candidate-alternatives put-candidate-alternatives">
+                <summary>Other ranked strikes</summary>
+                <ol class="candidate-rankings put-candidate-rankings"></ol>
+              </details>
+            </div>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
