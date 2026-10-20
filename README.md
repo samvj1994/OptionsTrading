@@ -48,13 +48,13 @@ On Windows, run `py -3 run_dashboard.py`.
 
 Open <http://127.0.0.1:8000>. To stop it manually, run `python3 run_dashboard.py --stop` (Windows: `py -3 run_dashboard.py --stop`). If port 8000 is already in use, set `PORT` to another port before starting (for example, `PORT=8001 python3 run_dashboard.py` on macOS/Linux).
 
-For your 9 AM to 4 PM schedule, set the scheduled start action to `python3 /path/to/OptionsTrading/run_dashboard.py` and the scheduled stop action to `python3 /path/to/OptionsTrading/run_dashboard.py --stop`. Replace the path with the folder where you cloned the repo. On Windows, use `py -3 C:\\path\\to\\OptionsTrading\\run_dashboard.py` and append `--stop` to the 4 PM action.
+For your 9 AM to 4 PM schedule, set the scheduled start action to `python3 /path/to/OptionsTrading/run_dashboard.py` and the scheduled stop action to `python3 /path/to/OptionsTrading/run_dashboard.py --stop`. Replace the path with the folder where you cloned the repo. On Windows, use `py -3 C:\path\to\OptionsTrading\run_dashboard.py` and append `--stop` to the 4 PM action.
 
 The local dashboard starts without Groww credentials, but live market and account data require Groww API credentials. Follow [Connect Groww](#connect-groww) to configure them. The dashboard stays available outside market hours and refreshes its market view every five minutes while open.
 
 To see the interface without credentials or outside market hours, start the clearly labeled synthetic preview (not market data or trading signals):
 
-```sh
+```console
 python3 run_dashboard.py --preview
 ```
 
