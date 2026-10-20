@@ -319,6 +319,7 @@ def trading_panel(holidays):
         key = journal_key(cycle)
         saved = get_review(key)
         with st.expander(f"Review trade {index} · {cycle.get('symbol', 'contract')} · P&L ₹{float(cycle.get('realizedPnl') or 0):,.2f}"):
+            st.caption(f"{cycle.get('side', '—')} · {fmt(cycle.get('quantity'), 0)} quantity · Entry ₹{fmt(cycle.get('entryPrice'))} at {cycle.get('entryTime', '—')} · Exit ₹{fmt(cycle.get('exitPrice'))} at {cycle.get('exitTime', '—')}")
             with st.form(f"review_{index}"):
                 cols = st.columns(3)
                 setup = cols[0].text_input("Setup type", value=saved.get("setup", ""))
